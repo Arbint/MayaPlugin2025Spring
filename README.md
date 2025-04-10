@@ -2,9 +2,7 @@
 
 ## Limb Rigger
 
-[Limb Rigger]("./src/LimbRigger.py")
-
-[Google]("https://www.google.com")
+<img src="./assets/LimbRigger.PNG" width=400>
 
 this plugin rigs any 3 joint limb with ik and fk and ikfk blend.
 
