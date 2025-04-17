@@ -30,7 +30,7 @@ def GetLowerStream(obj):
 def GetAllConnectionsIn(obj, nextFunc, filter = None):
     allFound = set()
     nexts = nextFunc(obj)
-    searchDepth = 100
+    searchDepth = 10
     while nexts and searchDepth > 0:
         searchDepth -= 1
         for next in nexts:
