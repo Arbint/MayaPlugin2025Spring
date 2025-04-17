@@ -33,8 +33,8 @@ def GetAllConnectionsIn(obj, nextFunc, filter = None):
     searchDepth = 10
     while nexts and searchDepth > 0:
         searchDepth -= 1
-        for next in nexts:
-            allFound.add(next)
+        for item in nexts:
+            allFound.add(item)
 
         nexts = nextFunc(nexts)
         if nexts:

@@ -75,7 +75,6 @@ class ProxyGenerator:
         mc.connectAttr(globalProxyCtrl + ".vis", proxyTopGrp+".v")
 
 
-
         
     def CreateProxyModelForJntAndVerts(self, jnt, verts):
         if not verts: 
