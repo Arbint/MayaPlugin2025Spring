@@ -1,5 +1,5 @@
 from MayaUtils import *
-from PySide2.QtWidgets import QVBoxLayout
+from PySide2.QtWidgets import QLineEdit, QPushButton, QVBoxLayout
 import maya.cmds as mc
 
 
@@ -18,7 +18,13 @@ class MayaToUE:
         self.animations : list[AnimClip] = []
         self.fileName = ""
         self.saveDir = ""
-        print("Added a new line")
+
+    def SetSelectedJointAsRoot(self):
+        selection = mc.ls(sl=True, type="joint")
+        if not selection:
+            raise Exception("Wrong Selection please select the root joint of your rig!")
+
+        self.rootJnt = selection[0]
 
     
 class MayaToUEWidget(MayaWindow):
@@ -27,8 +33,23 @@ class MayaToUEWidget(MayaWindow):
 
     def __init__(self):
         super().__init__()
+        self.mayaToUE = MayaToUE()
+
         self.setWindowTitle("Maya to UE")
         self.masterLayout = QVBoxLayout()
         self.setLayout(self.masterLayout)
+
+        self.rootJntText = QLineEdit()
+        self.rootJntText.setEnabled(False)
+        self.masterLayout.addWidget(self.rootJntText)
+
+        setSelectedAsRootJntBtn = QPushButton("Set Root Joint")
+        setSelectedAsRootJntBtn.clicked.connect(self.SetSelectedAsRootJntBtnClicked)
+        self.masterLayout.addWidget(setSelectedAsRootJntBtn)
+
+    def SetSelectedAsRootJntBtnClicked(self):
+        self.mayaToUE.SetSelectedJointAsRoot()
+        self.rootJntText.setText(self.mayaToUE.rootJnt)
+
 
 MayaToUEWidget().show()
