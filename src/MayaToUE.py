@@ -110,6 +110,13 @@ class AnimClipWidget(MayaWindow):
         setRangeBtn.clicked.connect(self.SetRangeBtnClicked)
         self.masterLayout.addWidget(setRangeBtn)
 
+        deleteBtn = QPushButton("X")
+        deleteBtn.clicked.connect(self.DeleteBtnClicked)
+        self.masterLayout.addWidget(deleteBtn)
+
+    def DeleteBtnClicked(self):
+        self.deleteLater()
+
     def SetRangeBtnClicked(self):
         mc.playbackOptions(e=True, min = self.animClip.frameMin, max = self.animClip.frameMax)
         mc.playbackOptions(e=True, ast = self.animClip.frameMin, aet = self.animClip.frameMax)
