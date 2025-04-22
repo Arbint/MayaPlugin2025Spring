@@ -1,5 +1,6 @@
 from MayaUtils import *
-from PySide2.QtWidgets import QLineEdit, QListWidget, QMessageBox, QPushButton, QVBoxLayout
+from PySide2.QtGui import QRegExpValidator
+from PySide2.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QListWidget, QMessageBox, QPushButton, QVBoxLayout
 import maya.cmds as mc
 
 def TryAction(actionFunc):
@@ -45,7 +46,6 @@ class MayaToUE:
 
 
 
-
     def AddRootJoint(self):
         if not self.rootJnt:   
             raise Exception("No Root Joint Assigned, please set the root joint of your rig first")
@@ -69,6 +69,32 @@ class MayaToUE:
 
         self.rootJnt = selection[0]
 
+class AnimClipWidget(MayaWindow):
+    def __init__(self, animClip: AnimClip):
+        super().__init__()
+        self.animClip = animClip
+        self.masterLayout = QHBoxLayout()
+        self.setLayout(self.masterLayout)        
+
+        shouldExportCheckbox = QCheckBox()
+        shouldExportCheckbox.setChecked(self.animClip.shouldExport)
+        self.masterLayout.addWidget(shouldExportCheckbox)
+        shouldExportCheckbox.toggled.connect(self.ShouldExportCheckboxToggled)
+
+        subfixLabel = QLabel("Subfix: ")
+        self.masterLayout.addWidget(subfixLabel)
+
+        subfixLineEdit = QLineEdit()
+        subfixLineEdit.setValidator(QRegExpValidator("[a-zA-Z0-9_]+"))
+        subfixLineEdit.setText(self.animClip.subfix)
+        subfixLineEdit.textChanged.connect(self.SubfixTextChanged)
+        self.masterLayout.addWidget(subfixLineEdit)
+
+    def SubfixTextChanged(self, newText):
+        self.animClip.subfix = newText
+
+    def ShouldExportCheckboxToggled(self):
+        self.animClip.shouldExport = not self.animClip.shouldExport
     
 class MayaToUEWidget(MayaWindow):
     def GetWidgetUniqueName(self):
@@ -121,4 +147,5 @@ class MayaToUEWidget(MayaWindow):
         self.rootJntText.setText(self.mayaToUE.rootJnt)
 
 
-MayaToUEWidget().show()
+# MayaToUEWidget().show()
+AnimClipWidget(AnimClip()).show()
