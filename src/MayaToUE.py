@@ -18,6 +18,7 @@ class MayaToUE:
         self.animations : list[AnimClip] = []
         self.fileName = ""
         self.saveDir = ""
+        print("Added a new line")
 
     
 class MayaToUEWidget(MayaWindow):
