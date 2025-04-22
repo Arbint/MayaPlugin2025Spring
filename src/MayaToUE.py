@@ -27,6 +27,22 @@ class MayaToUE:
         self.fileName = ""
         self.saveDir = ""
 
+    def AddRootJoint(self):
+        if not self.rootJnt:   
+            raise Exception("No Root Joint Assigned, please set the root joint of your rig first")
+
+        if mc.objExists(self.rootJnt):
+            currentRootPos = mc.xform(self.rootJnt, q=True, ws=True, t=True)
+            if currentRootPos[0] == 0 and currentRootPos[1] == 0 and currentRootPos[2] == 0:
+                raise Exception("Current root joint is at origin already, no need to make a new one!")
+        
+        mc.select(cl=True)
+        rootJntName = self.rootJnt + "_root" 
+        mc.joint(n=rootJntName)
+        mc.parent(self.rootJnt, rootJntName)
+        self.rootJnt = rootJntName
+
+
     def SetSelectedJointAsRoot(self):
         selection = mc.ls(sl=True, type="joint")
         if not selection:
@@ -54,6 +70,15 @@ class MayaToUEWidget(MayaWindow):
         setSelectedAsRootJntBtn = QPushButton("Set Root Joint")
         setSelectedAsRootJntBtn.clicked.connect(self.SetSelectedAsRootJntBtnClicked)
         self.masterLayout.addWidget(setSelectedAsRootJntBtn)
+
+        addRootJntBtn = QPushButton("Add Root Joint")
+        addRootJntBtn.clicked.connect(self.AddRootJntBtnClicked)
+        self.masterLayout.addWidget(addRootJntBtn)
+
+    @TryAction
+    def AddRootJntBtnClicked(self):
+        self.mayaToUE.AddRootJoint() 
+        self.rootJntText.setText(self.mayaToUE.rootJnt)
 
     @TryAction
     def SetSelectedAsRootJntBtnClicked(self):
