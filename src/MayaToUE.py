@@ -1,3 +1,4 @@
+import os
 from MayaUtils import *
 from PySide2.QtCore import Signal
 from PySide2.QtGui import QIntValidator, QRegExpValidator
@@ -28,6 +29,14 @@ class MayaToUE:
         self.animations : list[AnimClip] = []
         self.fileName = ""
         self.saveDir = ""
+
+    def GetSkeletalMeshSavePath(self):
+        savePath = os.path.join(self.saveDir, self.fileName + ".fbx")
+        return os.path.normpath(savePath)
+
+    def GetSavePathForAnimClip(self, animClip: AnimClip):
+        savePath = os.path.join(self.saveDir, "animations", self.fileName + animClip.subfix + ".fbx")
+        return os.path.normpath(savePath)
 
     def RemoveAnimClip(self, animCilp: AnimClip):
         self.animations.remove(animCilp)
@@ -203,14 +212,27 @@ class MayaToUEWidget(MayaWindow):
         self.pickDirBtn.clicked.connect(self.PickDirBtnClicked)
         self.saveFileLayout.addWidget(self.pickDirBtn)
 
+        self.savePreviewLabel = QLabel("")
+        self.masterLayout.addWidget(self.savePreviewLabel)
+
+    def UpdateSavePreivewLabel(self):
+        previewText = self.mayaToUE.GetSkeletalMeshSavePath()
+        for animClip in self.mayaToUE.animations:
+            animSavePath = self.mayaToUE.GetSavePathForAnimClip(animClip)
+            previewText += "\n" + animSavePath
+
+        self.savePreviewLabel.setText(previewText)
+
     def PickDirBtnClicked(self):
         pickedPath = QFileDialog().getExistingDirectory()
         self.saveDirLineEdit.setText(pickedPath)
         self.mayaToUE.saveDir = pickedPath
+        self.UpdateSavePreivewLabel()
 
 
     def FileNameLineEditChanged(self, newVal):
         self.mayaToUE.fileName = newVal
+        self.UpdateSavePreivewLabel()
 
 
     @TryAction
@@ -219,10 +241,12 @@ class MayaToUEWidget(MayaWindow):
         newAnimClipWidget = AnimClipWidget(newAnimClip)
         newAnimClipWidget.animClipRemoved.connect(self.AnimationClipRemoved)
         self.animClipEntryLayout.addWidget(newAnimClipWidget)
+        self.UpdateSavePreivewLabel()
         
     @TryAction
     def AnimationClipRemoved(self, animClip: AnimClip):
         self.mayaToUE.RemoveAnimClip(animClip)
+        self.UpdateSavePreivewLabel()
 
     @TryAction
     def AddMeshesBtnClicked(self):
