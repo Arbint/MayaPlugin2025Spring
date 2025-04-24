@@ -1,4 +1,5 @@
 from MayaUtils import *
+from PySide2.QtCore import Signal
 from PySide2.QtGui import QIntValidator, QRegExpValidator
 from PySide2.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QListWidget, QMessageBox, QPushButton, QVBoxLayout
 import maya.cmds as mc
@@ -27,9 +28,14 @@ class MayaToUE:
         self.animations : list[AnimClip] = []
         self.fileName = ""
         self.saveDir = ""
+
+    def RemoveAnimClip(self, animCilp: AnimClip):
+        self.animations.remove(animCilp)
+        print(f"removed anim clip, now have: {len(self.animations)} left")
     
     def AddNewAnimClip(self):
         self.animations.append(AnimClip())
+        print(f"added anim clip, now we have:{len(self.animations)} clips")
         return self.animations[-1]
 
     def AddSelectedMeshes(self):
@@ -74,6 +80,7 @@ class MayaToUE:
         self.rootJnt = selection[0]
 
 class AnimClipWidget(QWidget):
+    animClipRemoved = Signal(AnimClip)
     def __init__(self, animClip: AnimClip):
         super().__init__()
         self.animClip = animClip
@@ -119,6 +126,7 @@ class AnimClipWidget(QWidget):
         self.masterLayout.addWidget(deleteBtn)
 
     def DeleteBtnClicked(self):
+        self.animClipRemoved.emit(self.animClip)
         self.deleteLater()
 
     def SetRangeBtnClicked(self):
@@ -180,8 +188,12 @@ class MayaToUEWidget(MayaWindow):
     def AddAnimEntryBtnClicked(self):
         newAnimClip = self.mayaToUE.AddNewAnimClip()
         newAnimClipWidget = AnimClipWidget(newAnimClip)
+        newAnimClipWidget.animClipRemoved.connect(self.AnimationClipRemoved)
         self.animClipEntryLayout.addWidget(newAnimClipWidget)
         
+    @TryAction
+    def AnimationClipRemoved(self, animClip: AnimClip):
+        self.mayaToUE.RemoveAnimClip(animClip)
 
     @TryAction
     def AddMeshesBtnClicked(self):
