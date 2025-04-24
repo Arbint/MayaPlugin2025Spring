@@ -30,6 +30,9 @@ class MayaToUE:
         self.fileName = ""
         self.saveDir = ""
 
+    def SendToUnreal(self):
+        print("Sending to Unreal!")
+
     def GetSkeletalMeshSavePath(self):
         savePath = os.path.join(self.saveDir, self.fileName + ".fbx")
         return os.path.normpath(savePath)
@@ -90,6 +93,7 @@ class MayaToUE:
 
 class AnimClipWidget(QWidget):
     animClipRemoved = Signal(AnimClip)
+    animClipSubfixChange = Signal(str)
     def __init__(self, animClip: AnimClip):
         super().__init__()
         self.animClip = animClip
@@ -150,6 +154,7 @@ class AnimClipWidget(QWidget):
 
     def SubfixTextChanged(self, newText):
         self.animClip.subfix = newText
+        self.animClipSubfixChange.emit(newText)
 
     def ShouldExportCheckboxToggled(self):
         self.animClip.shouldExport = not self.animClip.shouldExport
@@ -215,6 +220,10 @@ class MayaToUEWidget(MayaWindow):
         self.savePreviewLabel = QLabel("")
         self.masterLayout.addWidget(self.savePreviewLabel)
 
+        sendToUEBtn = QPushButton("Send to Unreal")
+        sendToUEBtn.clicked.connect(self.mayaToUE.SendToUnreal)
+        self.masterLayout.addWidget(sendToUEBtn)
+
     def UpdateSavePreivewLabel(self):
         previewText = self.mayaToUE.GetSkeletalMeshSavePath()
         for animClip in self.mayaToUE.animations:
@@ -240,6 +249,7 @@ class MayaToUEWidget(MayaWindow):
         newAnimClip = self.mayaToUE.AddNewAnimClip()
         newAnimClipWidget = AnimClipWidget(newAnimClip)
         newAnimClipWidget.animClipRemoved.connect(self.AnimationClipRemoved)
+        newAnimClipWidget.animClipSubfixChange.connect(lambda *arg : self.UpdateSavePreivewLabel())
         self.animClipEntryLayout.addWidget(newAnimClipWidget)
         self.UpdateSavePreivewLabel()
         
