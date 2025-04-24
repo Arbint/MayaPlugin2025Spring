@@ -39,9 +39,9 @@ class MayaToUE:
             allJnts.extend(children)
 
         allMeshs = self.models 
-        allObjectToExprt = allJnts + list(allMeshs)
+        allObjectToExport = allJnts + list(allMeshs)
 
-        mc.select(allObjectToExprt, r=True)
+        mc.select(allObjectToExport, r=True)
         skeletalMeshExportPath = self.GetSkeletalMeshSavePath()
 
         mc.FBXResetExport() # resets all the settings
@@ -50,6 +50,29 @@ class MayaToUE:
 
         # -f means the file name, -s means export selected, -ea means export animation
         mc.FBXExport('-f', skeletalMeshExportPath, '-s', True, '-ea', False)  
+        
+        if self.animations:
+            mc.FBXExportBakeComplexAnimation('-v', True)
+            os.makedirs(os.path.join(self.saveDir, "animations"), exist_ok=True)
+
+            for animClip in self.animations:
+                if not animClip.shouldExport:
+                    continue
+
+                animExportPath = self.GetSavePathForAnimClip(animClip)
+
+                startFrame = animClip.frameMin
+                endFrame = animClip.frameMax
+
+                mc.FBXExportBakeComplexStart('-v', startFrame)
+                mc.FBXExportBakeComplexEnd('-v', endFrame)
+                mc.FBXExportBakecomplexStep('-v', 1)
+
+                mc.playbackOptions(e=True, min=startFrame, max=endFrame)
+
+                mc.FBXExport('-f', animExportPath, "-s", True, '-ea', True)
+
+
 
 
     def GetSkeletalMeshSavePath(self):
