@@ -66,7 +66,7 @@ class MayaToUE:
 
                 mc.FBXExportBakeComplexStart('-v', startFrame)
                 mc.FBXExportBakeComplexEnd('-v', endFrame)
-                mc.FBXExportBakecomplexStep('-v', 1)
+                mc.FBXExportBakeComplexStep('-v', 1)
 
                 mc.playbackOptions(e=True, min=startFrame, max=endFrame)
 
