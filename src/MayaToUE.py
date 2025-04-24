@@ -31,7 +31,26 @@ class MayaToUE:
         self.saveDir = ""
 
     def SendToUnreal(self):
-        print("Sending to Unreal!")
+        # Save the files:
+        allJnts = []
+        allJnts.append(self.rootJnt)
+        children = mc.listRelatives(self.rootJnt, c=True, ad=True, type="joint")
+        if children:
+            allJnts.extend(children)
+
+        allMeshs = self.models 
+        allObjectToExprt = allJnts + list(allMeshs)
+
+        mc.select(allObjectToExprt, r=True)
+        skeletalMeshExportPath = self.GetSkeletalMeshSavePath()
+
+        mc.FBXResetExport() # resets all the settings
+        mc.FBXExportSmoothingGroups("-v", True)
+        mc.FBXExportInputConnections("-v", False)
+
+        # -f means the file name, -s means export selected, -ea means export animation
+        mc.FBXExport('-f', skeletalMeshExportPath, '-s', True, '-ea', False)  
+
 
     def GetSkeletalMeshSavePath(self):
         savePath = os.path.join(self.saveDir, self.fileName + ".fbx")
