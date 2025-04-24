@@ -1,7 +1,7 @@
 from MayaUtils import *
 from PySide2.QtCore import Signal
 from PySide2.QtGui import QIntValidator, QRegExpValidator
-from PySide2.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QListWidget, QMessageBox, QPushButton, QVBoxLayout
+from PySide2.QtWidgets import QCheckBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QListWidget, QMessageBox, QPushButton, QVBoxLayout
 import maya.cmds as mc
 
 def TryAction(actionFunc):
@@ -183,6 +183,35 @@ class MayaToUEWidget(MayaWindow):
 
         self.animClipEntryLayout = QVBoxLayout()
         self.masterLayout.addLayout(self.animClipEntryLayout)
+
+        self.saveFileLayout = QHBoxLayout()
+        self.masterLayout.addLayout(self.saveFileLayout)
+
+        self.saveFileLayout.addWidget(QLabel("File Name: "))
+        self.fileNameLineEdit = QLineEdit()
+        self.fileNameLineEdit.setFixedWidth(80)
+        self.fileNameLineEdit.setValidator(QRegExpValidator("\w+"))
+        self.fileNameLineEdit.textChanged.connect(self.FileNameLineEditChanged)
+        self.saveFileLayout.addWidget(self.fileNameLineEdit)
+
+        self.saveFileLayout.addWidget(QLabel("Save Directory: "))
+        self.saveDirLineEdit = QLineEdit()
+        self.saveDirLineEdit.setEnabled(False)
+        self.saveFileLayout.addWidget(self.saveDirLineEdit)
+
+        self.pickDirBtn= QPushButton("...")
+        self.pickDirBtn.clicked.connect(self.PickDirBtnClicked)
+        self.saveFileLayout.addWidget(self.pickDirBtn)
+
+    def PickDirBtnClicked(self):
+        pickedPath = QFileDialog().getExistingDirectory()
+        self.saveDirLineEdit.setText(pickedPath)
+        self.mayaToUE.saveDir = pickedPath
+
+
+    def FileNameLineEditChanged(self, newVal):
+        self.mayaToUE.fileName = newVal
+
 
     @TryAction
     def AddAnimEntryBtnClicked(self):
