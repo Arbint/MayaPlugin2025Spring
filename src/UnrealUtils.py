@@ -57,6 +57,4 @@ def ImportMeshAndAnimations(meshPath, animDir):
         animPath = os.path.join(animDir, file)
         ImportAnimation(mesh, animPath)
 
-
-
-ImportMeshAndAnimations("D:/MayaToUETemp/Alex.fbx", "D:/MayaToUETemp/animations/")
+#ImportMeshAndAnimations("D:/MayaToUETemp/Alex.fbx", "D:/MayaToUETemp/animations/")
