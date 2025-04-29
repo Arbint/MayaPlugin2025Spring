@@ -74,6 +74,20 @@ class MayaToUE:
 
                 mc.FBXExport('-f', animExportPath, "-s", True, '-ea', True)
 
+        ueUtilPath = os.path.join(MayaPlugin2025Spring.srcDir, "UnrealUtils.py") 
+        ueUtilPath = os.path.normpath(ueUtilPath)
+
+        meshPath = self.GetSkeletalMeshSavePath().replace("\\", "/")
+        aimDir = os.path.join(self.saveDir, "animations").replace("\\", "/")
+
+        commandLines = []        
+        with open(ueUtilPath, 'r') as ueUtilityFile:
+            commandLines = ueUtilityFile.readlines()
+
+        commandLines.append(f"\nImportMeshAndAnimations(\'{meshPath}\', \'{aimDir}\')") 
+
+        command = "".join(commandLines)
+        print(command)
 
 
 
