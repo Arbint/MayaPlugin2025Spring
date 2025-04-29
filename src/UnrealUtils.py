@@ -1,16 +1,22 @@
 import os
 import unreal
 
-def ImportMeshAndAnimations(meshPath, animDir):
+def CreateBaseImportTask(importPath):
     importTask = unreal.AssetImportTask()
-    importTask.filename = meshPath
+    importTask.filename = importPath
 
-    fileName = os.path.basename(meshPath).split('.')[0]
+    fileName = os.path.basename(importPath).split('.')[0]
     importTask.destination_path = '/Game/'  + fileName
 
     importTask.automated = True
     importTask.save = True
     importTask.replace_existing = True
+
+    return importTask
+
+
+def ImportSkeletalMesh(meshPath):
+    importTask = CreateBaseImportTask(meshPath)
 
     importOption = unreal.FbxImportUI()
     importOption.import_mesh = True
@@ -21,6 +27,10 @@ def ImportMeshAndAnimations(meshPath, animDir):
     importTask.options = importOption
 
     unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([importTask])
+    return importTask.get_objects()[-1]
 
+def ImportMeshAndAnimations(meshPath, animDir):
+    mesh = ImportSkeletalMesh(meshPath) 
+    print(mesh)
 
 ImportMeshAndAnimations("D:/MayaToUETemp/Alex.fbx", "D:/MayaToUETemp/animations/")
